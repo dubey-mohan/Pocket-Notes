@@ -147,7 +147,7 @@ color: var(--muted);
   align-items: center;
 }
 
-.note-search {
+.search-notes {
   border: none;
   width: 100%;
   height: 40px;
