@@ -157,8 +157,16 @@ color: var(--muted);
   margin: 0 auto;
 }
 
-.all-tags {
+.tag-filter {
   margin: 10px 0px 10px 0px;
+  text-align: center;
+  border: none;
+  cursor: pointer;
+}
+
+.tag-filter.is-active {
+    background-color: var(--muted);
+    color: black;
 }
 
 #toast {
@@ -176,11 +184,6 @@ color: var(--muted);
 
 #toast[hidden] {
   display: none;
-}
-
-.all-tags {
-  display: flex;
-  gap: 5px;
 }
 
 .load-error {

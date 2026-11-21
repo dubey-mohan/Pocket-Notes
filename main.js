@@ -7,6 +7,8 @@ const app = document.querySelector('#app')
 const toast = document.querySelector("#toast")
 let allNotes = []
 let query = ""
+let toastTimer;
+let activeTags = new Set()
 
 app.addEventListener("change", (event) => {
     if (!event.target.matches(".done-toggle")) return;
@@ -15,17 +17,22 @@ app.addEventListener("change", (event) => {
     toggleDone(id, event.target.checked)
 });
 
-function getVisibleNotes() {
-    if (query === "") return allNotes;
+function matchesSearch(note) {
+    if (query === "") return true;
+    const title = (note.title ?? "").toLowerCase()
+    const body = (note.body ?? "").toLowerCase()
 
-    return allNotes.filter((note) => {
-        const title = (note.title ?? "").toLowerCase();
-        const body = (note.body ?? "").toLowerCase();
-        
-        return title.includes(query) || body.includes(query)
-    })
+    return title.includes(query) || body.includes(query)
 }
 
+function hasActiveTags(note) {
+    if (activeTags.size === 0) return true;
+    return [...activeTags].some((tag) => (note.tags ?? []).includes(tag));
+}
+
+function getVisibleNotes() {
+    return allNotes.filter((note) => matchesSearch(note) && hasActiveTags(note))
+}
 
 function renderFilterNotes() {
     renderAllNotes(getVisibleNotes());
@@ -42,15 +49,15 @@ async function toggleDone(id, done) {
     } catch (err) {
         allNotes = before;
         renderAllNotes(allNotes)
-        showToast(`Couldn't update the note ${err.message}`);
+        showToast(`Couldn't update the note: ${err.message}`);
     }
 }
 
-let toastTimer;
 function showToast(message) {
     toast.textContent = message;
     toast.hidden = false;
-    toastTimer = setTimeout(() => {toast.hidden = true;}, 3000)
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => {toast.hidden = true}, 3000);
 } 
 
 function updateDoneCount() {
@@ -84,7 +91,7 @@ function renderNote(note){
     return `
         <section class = "note" data-id = "${id}">
             <input class="done-toggle" type = "checkbox" ${done ? "checked" : ""}>
-            <main class = "note-body">
+            <div class = "note-body">
                 <h3>${utils.escapeHTML(title)}</h3>
                 <p>${utils.escapeHTML(body)}</p>
                 <footer>
@@ -95,7 +102,7 @@ function renderNote(note){
                         year: 'numeric'
                     })}</div>
                 </footer>
-            </main>
+            </div>
         </section>
     `
 }
@@ -104,13 +111,49 @@ function renderAllNotes(notes) {
     app.innerHTML = notes.map((note) => renderNote(note)).join('')
 }
 
+function allActiveTags() {
+    const allTags = new Set()
+    allNotes.forEach((note) => (note.tags ?? []).forEach((tag) => allTags.add(tag)));
+
+    noteSearch.querySelector('.all-tags').innerHTML = [...allTags]
+    .sort()
+    .map((tag) => {
+        const isActive = activeTags.has(tag);
+        return `
+        <button type = "button"
+                class = "tag tag-filter ${isActive ? "is-active" : ""}"
+                data-tag = "${utils.escapeHTML(tag)}"
+                aria-pressed = "${isActive}">
+        ${utils.escapeHTML(tag)}
+        </button>
+        `
+    })
+    .join("")
+}
+
+function getActiveTags() {
+    const allTags = document.querySelector('.all-tags')
+    allTags.addEventListener('click', (event) => {
+        
+        const button = event.target.closest('.tag-filter')
+        
+        if (!button) return;
+
+        const tag = button.dataset.tag
+
+        if (activeTags.has(tag)) {
+            activeTags.delete(tag)
+        } else {
+            activeTags.add(tag)
+        }
+
+        allActiveTags()
+        renderFilterNotes()
+    })
+}
 
 function renderNoteSearch(notes) {
 
-    const allTags = new Set()
-    notes.forEach((note) => {note.tags ?? [].forEach((tag) => allTags.add(tag))})
-
-    const allTagsHTML  = [...allTags].map((tag) => `<div class = "tag">${utils.escapeHTML(tag)}</div>`).join('')
     const totalDone = notes.filter(n => n.done).length
 
     noteSearch.innerHTML =  `
@@ -119,10 +162,10 @@ function renderNoteSearch(notes) {
             <h1>Notes</h1>
             <div class = "done-count">${totalDone} of ${notes.length} done</div>
         </header>
-        <main>
+        <div>
             <input type = "search" class = "search-notes" placeholder = "Please search required notes">
-            <div class = "all-tags">${allTagsHTML}</div>
-        </main>
+            <div class = "all-tags"></div>
+        </div>
     </section>
     `
     const search = document.querySelector('.search-notes')
@@ -131,6 +174,8 @@ function renderNoteSearch(notes) {
         renderFilterNotes()
     }, 300))
 
+    allActiveTags()
+    getActiveTags()
 }
 
 function renderPage(notes) {
@@ -146,7 +191,7 @@ function renderPage(notes) {
     toast.hidden = true
 
     renderNoteSearch(notes)
-    renderAllNotes(notes)
+    renderFilterNotes()
 }
 
 loadNotes()
