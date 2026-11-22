@@ -136,12 +136,25 @@ color: var(--muted);
 
 .notes-search {
   display: flex;
-  flex-direction: column;
-  margin-bottom: 20px;
+  justify-content: space-between;
+  margin: 20px 0px 20px 0px;
   gap: 20px;
 }
 
-.notes-search header {
+.sort-notes {
+  background-color: var(--ink-soft);
+  border-radius: 5px;
+  border: 1px solid var(--danger-soft);
+  height: 40px;
+  text-align: center;
+  font-family: var(--font);
+  font-size: 0.9rem;
+  padding: 5px;
+  margin: 0px;
+
+}
+
+.search-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -157,6 +170,10 @@ color: var(--muted);
   margin: 0 auto;
 }
 
+.search-panel {
+  width: 100%;
+}
+
 .tag-filter {
   margin: 10px 0px 10px 0px;
   text-align: center;
@@ -170,16 +187,16 @@ color: var(--muted);
 }
 
 #toast {
-  display: flex;
-  justify-content: center;
-  width: 50%;
-  background-color: var(--ink-soft);
-  border: var(--danger-soft) 1px solid;
-  padding: 30px;
-  border-radius: 10px;
-  font-family: var(--font);
-  font-weight: 300;
-  font-style: italic;
+  position: fixed;
+  bottom: 36px;                 
+  left: 50%;                    
+  transform: translateX(-50%);  
+  z-index: 1000;                
+  max-width: calc(100% - 32px);
+  padding: 10px 16px;
+  border-radius: 8px;
+  background: var(--danger);
+  color: var(--text);
 }
 
 #toast[hidden] {
