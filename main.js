@@ -1,2 +1,2 @@
-import {startRouter} from "./router";
+import {startRouter} from "./router.js";
 startRouter(document.querySelector('#app'))

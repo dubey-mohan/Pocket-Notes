@@ -1,6 +1,6 @@
-import { renderNotesPage } from "./pages/list";
-import { renderStatsPage } from "./pages/stats";
-import { renderNotFoundPage } from "./pages/nof-found";
+import { renderNotesPage } from "./pages/list.js";
+import { renderStatsPage } from "./pages/stats.js";
+import { renderNotFoundPage } from "./pages/not-found.js";
 
 const routes = [
     {pattern: /^\/$/, page: renderNotesPage},

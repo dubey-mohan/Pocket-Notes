@@ -7,7 +7,6 @@ let allNotes = []
 let query = ""
 let activeTags = new Set()
 let sortBy = "newest"
-
 let controlsEl;
 let notesEl;
 
